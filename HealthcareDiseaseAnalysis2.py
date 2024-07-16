@@ -10,7 +10,7 @@ st.cache_resource.clear()
 def get_drug_info(drug):
     
     try:
-        url_fda_drug="https://api.fda.gov/drug/drugsfda.json?search=openfda.brand_name:drug"
+        url_fda_drug=f"https://api.fda.gov/drug/drugsfda.json?search=openfda.brand_name:{drug}"
         r=request("GET", url_fda_drug)
     except request.exceptions.RequestException as e:
         st.write(e)
