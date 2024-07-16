@@ -2,6 +2,35 @@ import streamlit as st
 from openai import OpenAI
 import json
 import pandas as pd
+from requests import request
+
+st.cache_data.clear() 
+st.cache_resource.clear()
+
+def get_drug_info(drug):
+    
+    try:
+        url_fda_drug="https://api.fda.gov/drug/drugsfda.json?search=openfda.brand_name:drug"
+        r=request("GET", url_fda_drug)
+    except request.exceptions.RequestException as e:
+        st.write(e)
+    try:
+        drug_info=r.json()
+        column1, column2=st.columns(2)
+        with column1:
+            st.subheader("Active ingredients")           
+            for item in drug_info["results"][0]["products"][0]["active_ingredients"]:
+                st.write("Name: ", item["name"])
+                st.write("Strength: ", item["strength"])
+            
+        with column2:
+            st.subheader("Dosage", drug_info["results"][0]["products"][0]["dosage_form"])
+            st.write("Dosage Form: ", drug_info["results"][0]["products"][0]["dosage_form"])
+            st.write("Route: ", drug_info["results"][0]["products"][0]["route"])
+               
+    except json.JSONDecodeError:
+        st.error("Failed to decode the response into JSON. Please check the name of the drug.")
+
 
 # Set your OpenAI API key here
 client = OpenAI(api_key=st.secrets["OPEN_API_KEY"])
@@ -61,6 +90,12 @@ def display_disease_info(disease_info):
             medication_count += 1
     except json.JSONDecodeError:
         st.error("Failed to decode the response into JSON. Please check the format of the OpenAI response.")
+
+
+st.title("Drug Information Dashboard")
+drug=st.text_input("Enter the name of the drug")
+if drug:
+    get_drug_info(drug)
 
 st.title("Disease Information Dashboard")
 disease_name = st.text_input("Enter the name of the disease:")
