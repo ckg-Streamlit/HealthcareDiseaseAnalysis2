@@ -4,9 +4,11 @@ import json
 import pandas as pd
 from requests import request
 
+#clear cache
 st.cache_data.clear() 
 st.cache_resource.clear()
 
+#function for getting drug data from FDA usig its open API
 def get_drug_info(drug):
     
     try:
@@ -16,6 +18,7 @@ def get_drug_info(drug):
         st.write(e)
     try:
         drug_info=r.json()
+        #create 2 columns, 1 for active ingredients using a loop and one for dosage information
         column1, column2=st.columns(2)
         with column1:
             st.subheader("Active ingredients")           
@@ -93,6 +96,7 @@ def display_disease_info(disease_info):
 
 
 st.title("Drug Information Dashboard")
+#input for the drug of interest
 drug=st.text_input("Enter the name of the drug")
 if drug:
     get_drug_info(drug)
