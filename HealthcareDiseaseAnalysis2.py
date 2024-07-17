@@ -15,22 +15,24 @@ def get_drug_info(drug):
         url_fda_drug=f"https://api.fda.gov/drug/drugsfda.json?search=openfda.brand_name:{drug}"
         r=request("GET", url_fda_drug)
     except request.exceptions.RequestException as e:
-        st.write(e)
+        st.write("warning")
     try:
         drug_info=r.json()
         #create 2 columns, 1 for active ingredients using a loop and one for dosage information
         column1, column2=st.columns(2)
-        with column1:
-            st.subheader("Active ingredients")           
-            for item in drug_info["results"][0]["products"][0]["active_ingredients"]:
-                st.write("Name: ", item["name"])
-                st.write("Strength: ", item["strength"])
+        #check if drug is not in database
+        if "error" not in drug_info:
+            with column1:
+                for item in drug_info["results"][0]["products"][0]["active_ingredients"]:
+                    st.write("Name: ", item["name"])
+                    st.write("Strength: ", item["strength"])
             
-        with column2:
-            st.subheader("Dosage", drug_info["results"][0]["products"][0]["dosage_form"])
-            st.write("Dosage Form: ", drug_info["results"][0]["products"][0]["dosage_form"])
-            st.write("Route: ", drug_info["results"][0]["products"][0]["route"])
-               
+            with column2:
+                st.subheader("Dosage", drug_info["results"][0]["products"][0]["dosage_form"])
+                st.write("Dosage Form: ", drug_info["results"][0]["products"][0]["dosage_form"])
+                st.write("Route: ", drug_info["results"][0]["products"][0]["route"])
+        else:
+            st.write("Can't find the drug in database")
     except json.JSONDecodeError:
         st.error("Failed to decode the response into JSON. Please check the name of the drug.")
 
